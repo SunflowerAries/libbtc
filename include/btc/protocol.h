@@ -147,7 +147,7 @@ enum GetDataMsg
 /* =================================== */
 
 /* sets a version message*/
-LIBBTC_API void btc_p2p_msg_version_init(btc_p2p_version_msg* msg, const btc_p2p_address* addrFrom, const btc_p2p_address* addrTo, const char* strSubVer, btc_bool relay);
+// LIBBTC_API void btc_p2p_msg_version_init(btc_p2p_version_msg* msg, const btc_p2p_address* addrFrom, const btc_p2p_address* addrTo, const char* strSubVer, btc_bool relay);
 
 /* serialize a p2p "version" message to an existing cstring */
 LIBBTC_API void btc_p2p_msg_version_ser(btc_p2p_version_msg* msg, cstring* buf);

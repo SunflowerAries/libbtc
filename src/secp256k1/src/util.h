@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <limits.h>
+#include "debug.h"
 
 typedef struct {
     void (*fn)(const char *text, void* data);
@@ -326,19 +327,21 @@ static SECP256K1_INLINE int secp256k1_ctz32_var(uint32_t x) {
 /* Determine the number of trailing zero bits in a (non-zero) 64-bit x. */
 static SECP256K1_INLINE int secp256k1_ctz64_var(uint64_t x) {
     VERIFY_CHECK(x != 0);
-#if (__has_builtin(__builtin_ctzl) || SECP256K1_GNUC_PREREQ(3,4))
+/* #if (__has_builtin(__builtin_ctzl) || SECP256K1_GNUC_PREREQ(3,4)) */
     /* If the unsigned long type is sufficient to represent the largest uint64_t, consider __builtin_ctzl. */
-    if (((unsigned long)UINT64_MAX) == UINT64_MAX) {
-        return __builtin_ctzl(x);
-    }
-#endif
-#if (__has_builtin(__builtin_ctzll) || SECP256K1_GNUC_PREREQ(3,4))
+    /* if (((unsigned long)UINT64_MAX) == UINT64_MAX) { */
+    /*    return __builtin_ctzl(x); */
+    /*} */
+/* #endif */
+/* #if (__has_builtin(__builtin_ctzll) || SECP256K1_GNUC_PREREQ(3,4)) */
     /* Otherwise consider __builtin_ctzll (the unsigned long long type is always at least 64 bits). */
-    return __builtin_ctzll(x);
-#else
+    /* return __builtin_ctzll(x); */
+/* #else */
+    /* If no suitable CTZ builtin is available, use a (variable time) software emulation. */
+    /* return secp256k1_ctz64_var_debruijn(x); */
+/* #endif */
     /* If no suitable CTZ builtin is available, use a (variable time) software emulation. */
     return secp256k1_ctz64_var_debruijn(x);
-#endif
 }
 
 #endif /* SECP256K1_UTIL_H */

@@ -20,6 +20,7 @@
 #include "hash_impl.h"
 #include "scratch_impl.h"
 #include "selftest.h"
+#include "debug.h"
 
 #if defined(VALGRIND)
 # include <valgrind/memcheck.h>
@@ -43,12 +44,12 @@
 #include <stdio.h>
 static void secp256k1_default_illegal_callback_fn(const char* str, void* data) {
     (void)data;
-    fprintf(stderr, "[libsecp256k1] illegal argument: %s\n", str);
+    PRINTF("[libsecp256k1] illegal argument: %s\n", str);
     abort();
 }
 static void secp256k1_default_error_callback_fn(const char* str, void* data) {
     (void)data;
-    fprintf(stderr, "[libsecp256k1] internal consistency check failed: %s\n", str);
+    PRINTF("[libsecp256k1] internal consistency check failed: %s\n", str);
     abort();
 }
 #else

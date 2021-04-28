@@ -171,17 +171,17 @@ char* utils_uint8_to_hex(const uint8_t* bin, size_t l)
     return buffer_uint8_to_hex;
 }
 
-void utils_reverse_hex(char* h, int len)
-{
-    char* copy = btc_malloc(len);
-    int i;
-    strncpy(copy, h, len);
-    for (i = 0; i < len; i += 2) {
-        h[i] = copy[len - i - 2];
-        h[i + 1] = copy[len - i - 1];
-    }
-    btc_free(copy);
-}
+// void utils_reverse_hex(char* h, int len)
+// {
+//     char* copy = btc_malloc(len);
+//     int i;
+//     strncpy(copy, h, len);
+//     for (i = 0; i < len; i += 2) {
+//         h[i] = copy[len - i - 2];
+//         h[i + 1] = copy[len - i - 1];
+//     }
+//     btc_free(copy);
+// }
 
 const signed char p_util_hexdigit[256] =
     {
@@ -208,99 +208,99 @@ signed char utils_hex_digit(char c)
     return p_util_hexdigit[(unsigned char)c];
 }
 
-void utils_uint256_sethex(char* psz, uint8_t* out)
-{
-    memset(out, 0, sizeof(uint256));
+// void utils_uint256_sethex(char* psz, uint8_t* out)
+// {
+//     memset(out, 0, sizeof(uint256));
 
-    // skip leading spaces
-    while (isspace(*psz))
-        psz++;
+//     // skip leading spaces
+//     while (isspace(*psz))
+//         psz++;
 
-    // skip 0x
-    if (psz[0] == '0' && tolower(psz[1]) == 'x')
-        psz += 2;
+//     // skip 0x
+//     if (psz[0] == '0' && (psz[1] == 'x' || psz[1] == 'X'))
+//         psz += 2;
 
-    // hex string to uint
-    const char* pbegin = psz;
-    while (utils_hex_digit(*psz) != -1)
-        psz++;
-    psz--;
-    unsigned char* p1 = (unsigned char*)out;
-    unsigned char* pend = p1 + sizeof(uint256);
-    while (psz >= pbegin && p1 < pend) {
-        *p1 = utils_hex_digit(*psz--);
-        if (psz >= pbegin) {
-            *p1 |= ((unsigned char)utils_hex_digit(*psz--) << 4);
-            p1++;
-        }
-    }
-}
+//     // hex string to uint
+//     const char* pbegin = psz;
+//     while (utils_hex_digit(*psz) != -1)
+//         psz++;
+//     psz--;
+//     unsigned char* p1 = (unsigned char*)out;
+//     unsigned char* pend = p1 + sizeof(uint256);
+//     while (psz >= pbegin && p1 < pend) {
+//         *p1 = utils_hex_digit(*psz--);
+//         if (psz >= pbegin) {
+//             *p1 |= ((unsigned char)utils_hex_digit(*psz--) << 4);
+//             p1++;
+//         }
+//     }
+// }
 
-void* safe_malloc(size_t size)
-{
-    void* result;
+// void* safe_malloc(size_t size)
+// {
+//     void* result;
 
-    if ((result = malloc(size))) { /* assignment intentional */
-        return (result);
-    } else {
-        printf("memory overflow: malloc failed in safe_malloc.");
-        printf("  Exiting Program.\n");
-        exit(-1);
-        return (0);
-    }
-}
+//     if ((result = malloc(size))) { /* assignment intentional */
+//         return (result);
+//     } else {
+//         printf("memory overflow: malloc failed in safe_malloc.");
+//         printf("  Exiting Program.\n");
+//         exit(-1);
+//         return (0);
+//     }
+// }
 
-void btc_cheap_random_bytes(uint8_t* buf, uint32_t len)
-{
-    srand(time(NULL));
-    for (uint32_t i = 0; i < len; i++) {
-        buf[i] = rand();
-    }
-}
+// void btc_cheap_random_bytes(uint8_t* buf, uint32_t len)
+// {
+//     srand(time(NULL));
+//     for (uint32_t i = 0; i < len; i++) {
+//         buf[i] = rand();
+//     }
+// }
 
-void btc_get_default_datadir(cstring *path_out)
-{
-    // Windows < Vista: C:\Documents and Settings\Username\Application Data\Bitcoin
-    // Windows >= Vista: C:\Users\Username\AppData\Roaming\Bitcoin
-    // Mac: ~/Library/Application Support/Bitcoin
-    // Unix: ~/.bitcoin
-#ifdef WIN32
-    // Windows
-    char* homedrive = getenv("HOMEDRIVE");
-    char* homepath = getenv("HOMEDRIVE");
-    cstr_append_buf(path_out, homedrive, strlen(homedrive));
-    cstr_append_buf(path_out, homepath, strlen(homepath));
-#else
-    char* home = getenv("HOME");
-    if (home == NULL || strlen(home) == 0)
-        cstr_append_c(path_out, '/');
-    else
-        cstr_append_buf(path_out, home, strlen(home));
-#ifdef __APPLE__
-    // Mac
-    char *osx_home = "/Library/Application Support/Bitcoin";
-    cstr_append_buf(path_out, osx_home, strlen(osx_home));
-#else
-    // Unix
-    char *posix_home = "/.bitcoin";
-    cstr_append_buf(path_out, posix_home, strlen(posix_home));
-#endif
-#endif
-}
+// void btc_get_default_datadir(cstring *path_out)
+// {
+//     // Windows < Vista: C:\Documents and Settings\Username\Application Data\Bitcoin
+//     // Windows >= Vista: C:\Users\Username\AppData\Roaming\Bitcoin
+//     // Mac: ~/Library/Application Support/Bitcoin
+//     // Unix: ~/.bitcoin
+// #ifdef WIN32
+//     // Windows
+//     char* homedrive = getenv("HOMEDRIVE");
+//     char* homepath = getenv("HOMEDRIVE");
+//     cstr_append_buf(path_out, homedrive, strlen(homedrive));
+//     cstr_append_buf(path_out, homepath, strlen(homepath));
+// #else
+//     char* home = getenv("HOME");
+//     if (home == NULL || strlen(home) == 0)
+//         cstr_append_c(path_out, '/');
+//     else
+//         cstr_append_buf(path_out, home, strlen(home));
+// #ifdef __APPLE__
+//     // Mac
+//     char *osx_home = "/Library/Application Support/Bitcoin";
+//     cstr_append_buf(path_out, osx_home, strlen(osx_home));
+// #else
+//     // Unix
+//     char *posix_home = "/.bitcoin";
+//     cstr_append_buf(path_out, posix_home, strlen(posix_home));
+// #endif
+// #endif
+// }
 
-void btc_file_commit(FILE *file)
-{
-    fflush(file); // harmless if redundantly called
-#ifdef WIN32
-    HANDLE hFile = (HANDLE)_get_osfhandle(_fileno(file));
-    FlushFileBuffers(hFile);
-#else
-    #if defined(__linux__) || defined(__NetBSD__)
-    fdatasync(fileno(file));
-    #elif defined(__APPLE__) && defined(F_FULLFSYNC)
-    fcntl(fileno(file), F_FULLFSYNC, 0);
-    #else
-    fsync(fileno(file));
-    #endif
-#endif
-}
+// void btc_file_commit(FILE *file)
+// {
+//     fflush(file); // harmless if redundantly called
+// #ifdef WIN32
+//     HANDLE hFile = (HANDLE)_get_osfhandle(_fileno(file));
+//     FlushFileBuffers(hFile);
+// #else
+//     #if defined(__linux__) || defined(__NetBSD__)
+//     fdatasync(fileno(file));
+//     #elif defined(__APPLE__) && defined(F_FULLFSYNC)
+//     fcntl(fileno(file), F_FULLFSYNC, 0);
+//     #else
+//     fsync(fileno(file));
+//     #endif
+// #endif
+// }

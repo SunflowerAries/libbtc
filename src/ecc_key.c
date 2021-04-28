@@ -112,6 +112,9 @@ btc_bool btc_privkey_decode_wif(const char *privkey_wif, const btc_chainparams* 
 
     const size_t privkey_len = strlen(privkey_wif);
     uint8_t *privkey_data = (uint8_t *)btc_malloc(privkey_len);
+    if (!privkey_data) {
+        return false;
+    }
     memset(privkey_data, 0, privkey_len);
     size_t outlen = 0;
 

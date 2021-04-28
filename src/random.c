@@ -23,16 +23,19 @@
  OTHER DEALINGS IN THE SOFTWARE.
 
 */
-
 #include <btc/random.h>
 #ifdef HAVE_CONFIG_H
 #  include "libbtc-config.h"
 #endif
 
+#include <errno.h>
 #include <assert.h>
-#include <stdio.h>
+// #include <stdio.h>
+#include <fcntl.h>
 #include <string.h>
 #include <time.h>
+#include <poll.h>
+#include <unistd.h>
 
 #ifdef WIN32
 #include <windows.h>
@@ -95,14 +98,23 @@ btc_bool btc_random_bytes_internal(uint8_t* buf, uint32_t len, const uint8_t upd
     return ret;
 #else
     (void)update_seed; //unused
-    FILE* frand = fopen(RANDOM_DEVICE, "r");
-    if (!frand) {
+    // FILE* frand = fopen(RANDOM_DEVICE, "r");
+    // if (!frand) {
+    //     return false;
+    // }
+
+    // size_t len_read = fread(buf, 1, len, frand);
+    // assert(len_read == len);
+    // fclose(frand);
+    // return true;
+    int fd, num;
+
+    fd = open("/dev/urandom", O_RDONLY);
+    if (fd == -1) {
         return false;
     }
-
-    size_t len_read = fread(buf, 1, len, frand);
-    assert(len_read == len);
-    fclose(frand);
+    read(fd, buf, len);
+    close(fd);
     return true;
 #endif
 }

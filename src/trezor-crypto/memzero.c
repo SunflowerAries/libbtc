@@ -17,11 +17,11 @@
 #define HAVE_MEMSET_S 1
 #endif
 
-// GNU C Library version 2.25 or later.
-#if defined(__GLIBC__) && \
-    (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 25))
-#define HAVE_EXPLICIT_BZERO 1
-#endif
+// // GNU C Library version 2.25 or later.
+// #if defined(__GLIBC__) && \
+//     (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 25))
+// #define HAVE_EXPLICIT_BZERO 1
+// #endif
 
 // Newlib
 #if defined(__NEWLIB__)
@@ -46,11 +46,32 @@
 // Adapted from
 // https://github.com/jedisct1/libsodium/blob/1647f0d53ae0e370378a9195477e3df0a792408f/src/libsodium/sodium/utils.c#L102-L130
 
+/* LCOV_EXCL_START */
+#ifdef HAVE_WEAK_SYMBOLS
+__attribute__((weak)) void
+_sodium_dummy_symbol_to_prevent_memzero_lto(void *const  pnt,
+                                            const size_t len);
+__attribute__((weak)) void
+_sodium_dummy_symbol_to_prevent_memzero_lto(void *const  pnt,
+                                            const size_t len)
+{
+    (void) pnt; /* LCOV_EXCL_LINE */
+    (void) len; /* LCOV_EXCL_LINE */
+}
+#endif
+/* LCOV_EXCL_STOP */
+
 void memzero(void *const pnt, const size_t len) {
 #ifdef _WIN32
   SecureZeroMemory(pnt, len);
 #elif defined(HAVE_MEMSET_S)
   memset_s(pnt, (rsize_t)len, 0, (rsize_t)len);
+#elif defined(HAVE_WEAK_SYMBOLS)
+  memset(pnt, 0, len);
+  _sodium_dummy_symbol_to_prevent_memzero_lto(pnt, len);
+# ifdef HAVE_INLINE_ASM
+    __asm__ __volatile__ ("" : : "r"(pnt) : "memory");
+# endif
 #elif defined(HAVE_EXPLICIT_BZERO)
   explicit_bzero(pnt, len);
 #elif defined(HAVE_EXPLICIT_MEMSET)

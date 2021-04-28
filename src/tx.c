@@ -84,6 +84,9 @@ btc_tx_in* btc_tx_in_new()
 {
     btc_tx_in* tx_in;
     tx_in = btc_calloc(1, sizeof(*tx_in));
+    if (!tx_in) {
+        return NULL;
+    }
     memset(&tx_in->prevout, 0, sizeof(tx_in->prevout));
     tx_in->sequence = UINT32_MAX;
 
@@ -143,6 +146,9 @@ btc_tx* btc_tx_new()
 {
     btc_tx* tx;
     tx = btc_calloc(1, sizeof(*tx));
+    if (!tx) {
+        return NULL;
+    }
     tx->vin = vector_new(8, btc_tx_in_free_cb);
     tx->vout = vector_new(8, btc_tx_out_free_cb);
     tx->version = 1;
@@ -199,7 +205,9 @@ int btc_tx_deserialize(const unsigned char* tx_serialized, size_t inlen, btc_tx*
     unsigned int i;
     for (i = 0; i < vlen; i++) {
         btc_tx_in* tx_in = btc_tx_in_new();
-
+        if (!tx_in) {
+            return false;
+        }
         if (!btc_tx_in_deserialize(tx_in, &buf)) {
             btc_tx_in_free(tx_in);
             return false;
@@ -212,6 +220,9 @@ int btc_tx_deserialize(const unsigned char* tx_serialized, size_t inlen, btc_tx*
         return false;
     for (i = 0; i < vlen; i++) {
         btc_tx_out* tx_out = btc_tx_out_new();
+        if (!tx_out) {
+            return false;
+        }
 
         if (!btc_tx_out_deserialize(tx_out, &buf)) {
             btc_free(tx_out);
@@ -487,6 +498,9 @@ btc_bool btc_tx_sighash(const btc_tx* tx_to, const cstring* fromPubKey, unsigned
     btc_bool ret = true;
 
     btc_tx* tx_tmp = btc_tx_new();
+    if (!tx_tmp) {
+        return false;
+    }
     btc_tx_copy(tx_tmp, tx_to);
 
     cstring* s = NULL;
@@ -675,6 +689,9 @@ btc_bool btc_tx_add_address_out(btc_tx* tx, const btc_chainparams* chain, int64_
 {
     const size_t buflen = sizeof(uint8_t) * strlen(address) * 2;
     uint8_t *buf = (uint8_t *)btc_malloc(buflen);
+    if (!buf) {
+        return false;
+    }
     int r = btc_base58_decode_check(address, buf, buflen);
     if (r > 0 && buf[0] == chain->b58prefix_pubkey_address) {
         btc_tx_add_p2pkh_hash160_out(tx, amount, &buf[1]);

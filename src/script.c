@@ -79,6 +79,9 @@ btc_bool btc_script_copy_without_op_codeseperator(const cstring* script_in, cstr
         if (data_len > 0) {
             assert(data_len < 16777215); //limit max push to 0xFFFFFF
             unsigned char *bufpush = (unsigned char *)btc_malloc(data_len);
+            if (!bufpush) {
+                return false;
+            }
             deser_bytes(bufpush, &buf, data_len);
             cstr_append_buf(script_out, bufpush, data_len);
             btc_free(bufpush);
@@ -130,6 +133,8 @@ btc_bool btc_script_get_ops(const cstring* script_in, vector* ops_out)
     btc_script_op* op = NULL;
     while (buf.len > 0) {
         op = btc_script_op_new();
+        if (!op)
+            goto err_out;
 
         if (!deser_bytes(&opcode, &buf, 1))
             goto err_out;
@@ -166,6 +171,8 @@ btc_bool btc_script_get_ops(const cstring* script_in, vector* ops_out)
         }
 
         op->data = btc_calloc(1, data_len);
+        if (!op->data)
+            goto err_out;
         memcpy(op->data, buf.p, data_len);
         op->datalen = data_len;
 
@@ -222,6 +229,9 @@ btc_bool btc_script_is_pubkey(const vector* ops, vector* data_out)
             //copy the full pubkey (33 or 65) in case of a non empty vector
             const btc_script_op* op = vector_idx(ops, 0);
             uint8_t* buffer = btc_calloc(1, op->datalen);
+            if (!buffer) {
+                return false;
+            }
             memcpy(buffer, op->data, op->datalen);
             vector_add(data_out, buffer);
         }
@@ -243,6 +253,9 @@ btc_bool btc_script_is_pubkeyhash(const vector* ops, vector* data_out)
             //copy the data (hash160) in case of a non empty vector
             const btc_script_op* op = vector_idx(ops, 2);
             uint8_t* buffer = btc_calloc(1, sizeof(uint160));
+            if (!buffer) {
+                return false;
+            }
             memcpy(buffer, op->data, sizeof(uint160));
             vector_add(data_out, buffer);
         }
@@ -263,6 +276,9 @@ btc_bool btc_script_is_scripthash(const vector* ops, vector* data_out)
             //copy the data (hash160) in case of a non empty vector
             const btc_script_op* op = vector_idx(ops, 1);
             uint8_t* buffer = btc_calloc(1, sizeof(uint160));
+            if (!buffer) {
+                return false;
+            }
             memcpy(buffer, op->data, sizeof(uint160));
             vector_add(data_out, buffer);
         }
@@ -333,6 +349,9 @@ enum btc_tx_out_type btc_script_classify(const cstring* script, vector* data_out
             tx_out_type = BTC_TX_WITNESS_V0_PUBKEYHASH;
             if (data_out) {
                 uint8_t *witness_program_cpy = btc_calloc(1, witness_program_len);
+                if (!witness_program_cpy)
+                    goto err_out;
+                
                 memcpy(witness_program_cpy, witness_program, witness_program_len);
                 vector_add(data_out, witness_program_cpy);
             }
@@ -341,13 +360,20 @@ enum btc_tx_out_type btc_script_classify(const cstring* script, vector* data_out
             tx_out_type = BTC_TX_WITNESS_V0_SCRIPTHASH;
             if (data_out) {
                 uint8_t *witness_program_cpy = btc_calloc(1, witness_program_len);
+                if (!witness_program_cpy)
+                    goto err_out;
                 memcpy(witness_program_cpy, witness_program, witness_program_len);
                 vector_add(data_out, witness_program_cpy);
             }
         }
     }
+
     vector_free(ops, true);
     return tx_out_type;
+
+err_out:
+    vector_free(ops, true);
+    return BTC_TX_INVALID;
 }
 
 

@@ -180,7 +180,7 @@ int segwit_addr_decode(int* witver, uint8_t* witdata, size_t* witdata_len, const
     size_t data_len = 0;
     if (!bech32_decode(hrp_actual, data, &data_len, addr)) return 0;
     if (data_len == 0 || data_len > 65) return 0;
-    if (strncmp(hrp, hrp_actual, 84) != 0) return 0;
+    if (memcmp(hrp, hrp_actual, 84) != 0) return 0;
     if (data[0] > 16) return 0;
     *witdata_len = 0;
     if (!convert_bits(witdata, witdata_len, 8, data + 1, data_len - 1, 5, 0)) return 0;

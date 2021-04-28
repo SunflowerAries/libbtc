@@ -141,27 +141,27 @@ void btc_p2paddr_to_addr(btc_p2p_address* p2p_addr, struct sockaddr* addr_out)
     }
 }
 
-void btc_p2p_msg_version_init(btc_p2p_version_msg* msg, const btc_p2p_address* addrFrom, const btc_p2p_address* addrTo, const char* strSubVer, btc_bool relay)
-{
-    msg->version = BTC_PROTOCOL_VERSION;
-    msg->services = 0;
-    msg->timestamp = time(NULL);
-    msg->timestamp = time(NULL);
-    if (addrTo)
-        msg->addr_recv = *addrTo;
-    else
-        btc_p2p_address_init(&msg->addr_recv);
-    if (addrFrom)
-        msg->addr_from = *addrFrom;
-    else
-        btc_p2p_address_init(&msg->addr_from);
-    btc_cheap_random_bytes((uint8_t*)&msg->nonce, sizeof(msg->nonce));
-    if (strSubVer && strlen(strSubVer) < 128)
-        memcpy(msg->useragent, strSubVer, strlen(strSubVer));
+// void btc_p2p_msg_version_init(btc_p2p_version_msg* msg, const btc_p2p_address* addrFrom, const btc_p2p_address* addrTo, const char* strSubVer, btc_bool relay)
+// {
+//     msg->version = BTC_PROTOCOL_VERSION;
+//     msg->services = 0;
+//     msg->timestamp = time(NULL);
+//     msg->timestamp = time(NULL);
+//     if (addrTo)
+//         msg->addr_recv = *addrTo;
+//     else
+//         btc_p2p_address_init(&msg->addr_recv);
+//     if (addrFrom)
+//         msg->addr_from = *addrFrom;
+//     else
+//         btc_p2p_address_init(&msg->addr_from);
+//     btc_cheap_random_bytes((uint8_t*)&msg->nonce, sizeof(msg->nonce));
+//     if (strSubVer && strlen(strSubVer) < 128)
+//         memcpy(msg->useragent, strSubVer, strlen(strSubVer));
 
-    msg->start_height = 0;
-    msg->relay = relay;
-}
+//     msg->start_height = 0;
+//     msg->relay = relay;
+// }
 
 void btc_p2p_msg_version_ser(btc_p2p_version_msg* msg, cstring* buf)
 {
@@ -269,6 +269,9 @@ btc_bool btc_p2p_deser_msg_getheaders(vector* blocklocators, uint256 hashstop, s
     vector_resize(blocklocators, vsize);
     for (unsigned int i = 0; i < vsize; i++) {
         uint256 *hash = btc_malloc(BTC_HASH_LENGTH);
+        if (!hash) {
+            return false;
+        }
         if (!deser_u256(*hash, buf)) {
             btc_free(hash);
             return false;

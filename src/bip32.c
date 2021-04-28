@@ -274,6 +274,9 @@ btc_bool btc_hdnode_deserialize(const char* str, const btc_chainparams* chain, b
 {
     const size_t ndlen = sizeof(uint8_t) * strlen(str);
     uint8_t *node_data = (uint8_t *)btc_malloc(ndlen);
+    if (!node_data) {
+        return false;
+    }
     memset(node, 0, sizeof(btc_hdnode));
     size_t outlen = 0;
 

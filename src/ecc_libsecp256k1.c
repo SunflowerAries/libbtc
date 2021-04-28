@@ -7,6 +7,7 @@
 
 #include <btc/btc.h>
 #include <btc/random.h>
+#include <btc/debug.h>
 
 static secp256k1_context* secp256k1_ctx = NULL;
 
