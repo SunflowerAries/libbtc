@@ -53,7 +53,7 @@ HEADER_MUTATION_END
 }
 
 # subtrees
-update_subtree https://github.com/SunflowerAries/secp256k1 secp256k1
+update_subtree https://github.com/Teechain-KeyStone/secp256k1 secp256k1
 update_subtree https://github.com/trezor/trezor-firmware trezor-crypto crypto
 
 # headers copied from subtrees
